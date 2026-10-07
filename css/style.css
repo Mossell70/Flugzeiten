@@ -1,0 +1,225 @@
+/* Flugzeiten – Instrumentenbrett-Look, große Bedienflächen für die Nutzung im Cockpit */
+:root {
+  --bg: #11181D;           /* Panel-Anthrazit */
+  --panel: #1A242B;
+  --panel-2: #222F38;
+  --ink: #E8EEF1;
+  --ink-soft: #93A4AE;
+  --line: #2E3D47;
+  --start: #36B37E;        /* Start: Grün */
+  --tg: #F2B33D;           /* Touch-and-Go: Bernstein */
+  --landing: #4C9BE8;      /* Landung: Blau */
+  --end: #E5584F;          /* Beenden */
+  --on-color: #0B1013;
+  --focus: #F2B33D;
+  --radius: 14px;
+  --mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+  --text: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #E9EDEF;
+    --panel: #FFFFFF;
+    --panel-2: #F2F5F6;
+    --ink: #142028;
+    --ink-soft: #55656F;
+    --line: #CBD4D9;
+    --start: #1F8F5F;
+    --tg: #C98A10;
+    --landing: #2370C2;
+    --end: #C93A31;
+    --on-color: #FFFFFF;
+    --focus: #2370C2;
+    color-scheme: light;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 1rem/1.45 var(--text);
+  -webkit-tap-highlight-color: transparent;
+}
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+h1, h2 { margin: 0; line-height: 1.15; }
+p { margin: 0; }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.shell {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(2rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  display: grid;
+  gap: 1rem;
+}
+
+/* ---------- Kopf ---------- */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+h1 { font-size: 1.125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.status {
+  font: 600 0.8125rem/1 var(--text);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.status::before {
+  content: ''; display: inline-block; width: 0.55rem; height: 0.55rem; border-radius: 50%;
+  margin-right: 0.45rem; vertical-align: 0.02em; background: var(--ink-soft);
+}
+.status[data-state="air"] { color: var(--ink); border-color: var(--start); }
+.status[data-state="air"]::before { background: var(--start); box-shadow: 0 0 0 3px color-mix(in srgb, var(--start) 30%, transparent); }
+.status[data-state="ended"]::before { background: var(--end); }
+
+/* ---------- Uhr ---------- */
+.clock {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  display: flex; align-items: baseline; justify-content: center;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.clock-time { font-size: clamp(3.25rem, 17vw, 5rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.clock-sec { font-size: clamp(1.5rem, 7vw, 2.25rem); color: var(--ink-soft); }
+.clock-zone {
+  margin-left: 0.75rem; font: 700 0.875rem/1 var(--text); letter-spacing: 0.12em;
+  color: var(--on-color); background: var(--ink-soft); padding: 0.3rem 0.45rem; border-radius: 4px;
+  align-self: center;
+}
+
+/* ---------- Tasten ---------- */
+.recorder { display: grid; gap: 0.75rem; }
+.pads { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+.pad {
+  --c: var(--ink-soft);
+  appearance: none;
+  border: 2px solid var(--c);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: var(--radius);
+  min-height: 9rem;
+  padding: 0.75rem 0.5rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem;
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 80ms ease, background-color 120ms ease;
+}
+.pad:active { transform: scale(0.97); background: var(--c); color: var(--on-color); }
+.pad .icon { width: 3.25rem; height: 3.25rem; color: var(--c); }
+.pad:active .icon { color: var(--on-color); }
+.pad-label { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.02em; }
+.pad-start { --c: var(--start); }
+.pad-tg { --c: var(--tg); }
+.pad-landing { --c: var(--landing); }
+.pad-end {
+  --c: var(--end);
+  min-height: 5rem;
+  flex-direction: row; flex-wrap: wrap; column-gap: 0.75rem; row-gap: 0;
+}
+.pad-end .icon { width: 2.25rem; height: 2.25rem; }
+.pad-sub { flex-basis: 100%; text-align: center; font-size: 0.8125rem; color: var(--ink-soft); }
+.pad-end:active .pad-sub { color: var(--on-color); }
+
+/* Die jeweils erwartete Taste hervorheben */
+body[data-phase="ground"] .pad-start,
+body[data-phase="air"] .pad-tg,
+body[data-phase="air"] .pad-landing { background: color-mix(in srgb, var(--c) 16%, var(--panel)); }
+
+.icon { fill: none; stroke: currentColor; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.icon-sm { width: 1.1rem; height: 1.1rem; stroke-width: 4; vertical-align: -0.2em; }
+
+/* ---------- Beendet ---------- */
+.ended {
+  background: var(--panel);
+  border: 2px solid var(--end);
+  border-radius: var(--radius);
+  padding: 1.1rem;
+  display: grid; gap: 0.75rem;
+}
+.ended h2 { font-size: 1.25rem; }
+.ended-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.file-name { font: 600 0.875rem/1.2 var(--mono); color: var(--ink-soft); }
+.file-text {
+  margin: 0;
+  padding: 0.75rem;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: 400 1rem/1.5 var(--mono);
+  font-variant-numeric: tabular-nums;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 50vh;
+  overflow: auto;
+}
+.btn {
+  appearance: none; font: 600 1rem/1.2 var(--text);
+  min-height: 3rem; padding: 0.6rem 1rem;
+  border-radius: 10px; border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--ink); cursor: pointer;
+}
+.btn-strong { background: var(--end); border-color: var(--end); color: var(--on-color); }
+
+/* ---------- Protokoll ---------- */
+.log {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.9rem 1rem 1rem;
+}
+.log-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+.log-head h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); }
+.link {
+  appearance: none; background: none; border: 0; padding: 0.5rem 0; min-height: 2.75rem;
+  font: 500 0.9375rem/1.2 var(--text); color: var(--ink); cursor: pointer;
+}
+.link:disabled { color: var(--ink-soft); opacity: 0.5; cursor: default; }
+.log-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 1.0625rem; }
+.log-table th {
+  font: 600 0.75rem/1 var(--text); text-transform: uppercase; letter-spacing: 0.08em; text-align: left;
+  color: var(--ink-soft); padding: 0.4rem 0.4rem 0.5rem; border-bottom: 1px solid var(--line);
+}
+.log-table th:nth-child(1) { color: var(--start); }
+.log-table th:nth-child(2) { color: var(--tg); }
+.log-table th:nth-child(3) { color: var(--landing); }
+.log-table td { padding: 0.55rem 0.4rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.log-table td:nth-child(2) { width: 45%; }
+.log-table tr:last-child td { border-bottom: 0; }
+.log-table tr.is-open td { background: color-mix(in srgb, var(--start) 10%, transparent); }
+.log-table tr.is-new td { animation: flash 900ms ease-out; }
+@keyframes flash { from { background: color-mix(in srgb, var(--tg) 45%, transparent); } }
+.empty { color: var(--ink-soft); padding: 0.75rem 0.4rem 0.25rem; }
+
+/* ---------- Rückmeldung ---------- */
+.toast {
+  position: fixed; left: 50%; bottom: max(1.25rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  background: var(--ink); color: var(--bg);
+  font: 600 1.0625rem/1.2 var(--mono);
+  padding: 0.75rem 1.1rem; border-radius: 999px;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.3);
+  white-space: nowrap;
+}
+
+@media (min-width: 40rem) {
+  .pad { min-height: 10rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pad, .log-table tr.is-new td { transition: none; animation: none; }
+}

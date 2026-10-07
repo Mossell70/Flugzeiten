@@ -1,0 +1,17 @@
+{
+  "name": "Flugzeiten",
+  "short_name": "Flugzeiten",
+  "description": "UTC-Zeiten für Start, Touch-and-Go und Landung erfassen",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#11181D",
+  "theme_color": "#11181D",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

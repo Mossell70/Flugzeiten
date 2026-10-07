@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="UTC-Zeiten für Start, Touch-and-Go und Landung per Knopfdruck erfassen und als Textdatei speichern.">
+  <meta name="theme-color" content="#11181D">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; manifest-src 'self'; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Flugzeiten</title>
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Flugzeiten">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <!-- Symbole, werden per <use> eingebunden -->
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-start" viewBox="0 0 48 48">
+      <path d="M5 41h38" stroke-width="3" stroke-dasharray="5 4" opacity="0.7"/>
+      <path d="M8 34 L38 12"/>
+      <path d="M27 11 L38 12 L35 22"/>
+    </symbol>
+    <symbol id="i-tg" viewBox="0 0 48 48">
+      <path d="M5 41h38" stroke-width="3" stroke-dasharray="5 4" opacity="0.7"/>
+      <path d="M5 13 Q20 36 24 36 Q28 36 43 13"/>
+      <path d="M33 13 L43 13 L41 23"/>
+    </symbol>
+    <symbol id="i-landing" viewBox="0 0 48 48">
+      <path d="M5 41h38" stroke-width="3" stroke-dasharray="5 4" opacity="0.7"/>
+      <path d="M8 8 L34 32"/>
+      <path d="M34 21 L34 32 L23 32"/>
+    </symbol>
+    <symbol id="i-end" viewBox="0 0 48 48">
+      <path d="M12 5 H29 L37 13 V43 H12 Z"/>
+      <path d="M29 5 V13 H37"/>
+      <path d="M18 22 H31 M18 29 H31 M18 36 H26"/>
+    </symbol>
+    <symbol id="i-undo" viewBox="0 0 48 48">
+      <path d="M14 16 H30 a10 10 0 0 1 0 20 H18"/>
+      <path d="M21 9 L14 16 L21 23"/>
+    </symbol>
+  </svg>
+
+  <main class="shell">
+    <header class="top">
+      <h1>Flugzeiten</h1>
+      <p id="status" class="status" data-state="ground" aria-live="polite">Am Boden</p>
+    </header>
+
+    <section class="clock" aria-label="Aktuelle Uhrzeit in UTC">
+      <time id="clock" class="clock-time">--:--</time><span id="clock-sec" class="clock-sec">:--</span>
+      <span class="clock-zone">UTC</span>
+    </section>
+
+    <section id="recorder" class="recorder" aria-label="Zeiten erfassen">
+      <div class="pads">
+        <button type="button" class="pad pad-start" data-record="start">
+          <svg class="icon" aria-hidden="true"><use href="#i-start"/></svg>
+          <span class="pad-label">Start</span>
+        </button>
+        <button type="button" class="pad pad-tg" data-record="tg" aria-label="Touch and Go">
+          <svg class="icon" aria-hidden="true"><use href="#i-tg"/></svg>
+          <span class="pad-label">T&amp;G</span>
+        </button>
+        <button type="button" class="pad pad-landing" data-record="landing">
+          <svg class="icon" aria-hidden="true"><use href="#i-landing"/></svg>
+          <span class="pad-label">Landung</span>
+        </button>
+      </div>
+      <button type="button" class="pad pad-end" data-action="end">
+        <svg class="icon" aria-hidden="true"><use href="#i-end"/></svg>
+        <span class="pad-label">Beenden</span>
+        <span class="pad-sub">Textdatei erstellen</span>
+      </button>
+    </section>
+
+    <section id="ended" class="ended" hidden aria-labelledby="ended-title">
+      <h2 id="ended-title">Aufzeichnung beendet</h2>
+      <p class="file-name"><span id="file-name">Flugzeiten.txt</span></p>
+      <pre id="file-text" class="file-text" aria-label="Inhalt der Textdatei"></pre>
+      <div class="ended-actions">
+        <button type="button" class="btn" data-action="open-file">Datei öffnen</button>
+        <button type="button" class="btn btn-strong" data-action="save-file">Datei speichern</button>
+      </div>
+      <div class="ended-actions">
+        <button type="button" class="btn" data-action="resume">Weiter aufzeichnen</button>
+        <button type="button" class="btn" data-action="reset">Neue Aufzeichnung</button>
+      </div>
+    </section>
+
+    <section class="log" aria-labelledby="log-title">
+      <div class="log-head">
+        <h2 id="log-title">Aufzeichnung</h2>
+        <button type="button" class="link" data-action="undo" disabled>
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#i-undo"/></svg>
+          Letzten Eintrag rückgängig
+        </button>
+      </div>
+      <table class="log-table">
+        <thead><tr><th scope="col">Start</th><th scope="col">T&amp;G</th><th scope="col">Landung</th></tr></thead>
+        <tbody id="log-body"></tbody>
+      </table>
+      <p id="log-empty" class="empty">Noch keine Zeiten erfasst.</p>
+    </section>
+
+    <p id="toast" class="toast" role="status" aria-live="polite" hidden></p>
+  </main>
+</body>
+</html>
