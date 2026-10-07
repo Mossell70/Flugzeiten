@@ -9,7 +9,8 @@ from playwright.sync_api import sync_playwright
 
 URL = sys.argv[1]
 SHOT = sys.argv[2] if len(sys.argv) > 2 else 'e2e.png'
-EXPECTED_TEXT = 'Start - T&G - Landung (UTC)\n09:12 - 09:20, 09:27 - 09:35\n10:00 -  - 10:39'
+EXPECTED_TEXT = ('Start - T&G - Landung - Dauer (UTC)\n09:12 - 09:20, 09:27 - 09:35 - 00:23\n'
+                 '10:00 -  - 10:39 - 00:39\n\nZeit in der Luft: 01:02')
 
 
 def rows(page):
@@ -41,19 +42,25 @@ with sync_playwright() as p:
 
     tap(page, '[data-record="start"]', 8 * 60)            # 09:12 Start
     assert page.text_content('#status') == 'In der Luft seit 09:12'
+    # laufende Flugzeit nach 8 Minuten
+    assert page.is_visible('#airtime') and page.text_content('#airtime-value') == '00:08', page.text_content('#airtime-value')
+    assert rows(page) == [['09:12', '', '', '00:08']], rows(page)
+    assert page.text_content('#log-total') == '00:08'
     page.click('[data-record="tg"]')                       # Doppeltipp direkt danach …
     page.click('[data-record="tg"]')                       # … wird ignoriert
     page.clock.run_for(7 * 60 * 1000)
     tap(page, '[data-record="tg"]', 8 * 60)                # 09:27 zweites T&G
     tap(page, '[data-record="landing"]', 25 * 60)          # 09:35 Landung
     assert page.text_content('#status') == 'Am Boden'
+    assert not page.is_visible('#airtime')
     tap(page, '[data-record="start"]', 39 * 60)            # 10:00 Start (ohne T&G)
     tap(page, '[data-record="landing"]', 60)               # 10:39 Landung
     tap(page, '[data-record="tg"]', 60)                    # 10:40 Fehltipp …
     page.click('[data-action="undo"]')                     # … rückgängig
 
-    expected = [['09:12', '09:20, 09:27', '09:35'], ['10:00', '', '10:39']]
+    expected = [['09:12', '09:20, 09:27', '09:35', '00:23'], ['10:00', '', '10:39', '00:39']]
     assert rows(page) == expected, rows(page)
+    assert page.text_content('#log-total') == '01:02'
 
     # Neu laden: Aufzeichnung bleibt erhalten
     page.reload()

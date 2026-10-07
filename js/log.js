@@ -3,7 +3,8 @@
 
 export const TYPES = Object.freeze(['start', 'tg', 'landing']);
 export const SEPARATOR = ' - ';
-export const HEADER = 'Start - T&G - Landung (UTC)';
+export const HEADER = 'Start - T&G - Landung - Dauer (UTC)';
+export const TOTAL_LABEL = 'Zeit in der Luft';
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 /** UTC-Uhrzeit im Format HH:MM, ohne Datum. */
@@ -53,11 +54,51 @@ export function isAirborne(events) {
   return !!last && last.landing === '';
 }
 
-export function formatLine(flight) {
-  return [flight.start, flight.tg.join(', '), flight.landing].join(SEPARATOR);
+const DAY = 24 * 60;
+
+function minutesOf(time) {
+  const [h, m] = time.split(':').map(Number);
+  return h * 60 + m;
 }
 
-/** Inhalt der „Textdatei“: Kopfzeile plus eine Zeile pro Flug. */
+/**
+ * Minuten zwischen zwei Uhrzeiten (HH:MM). Liegt das Ende vor dem Anfang,
+ * wurde Mitternacht (UTC) überflogen. Fehlt eine Zeit: null.
+ */
+export function minutesBetween(from, to) {
+  if (!isValidTime(from) || !isValidTime(to)) return null;
+  return (minutesOf(to) - minutesOf(from) + DAY) % DAY;
+}
+
+/** Flugdauer Start bis Landung in Minuten, null wenn Start oder Landung fehlt. */
+export function flightMinutes(flight) {
+  return minutesBetween(flight.start, flight.landing);
+}
+
+/** Summe aller vollständigen Flüge (Start und Landung erfasst) in Minuten. */
+export function totalMinutes(flights) {
+  return flights.reduce((sum, f) => sum + (flightMinutes(f) ?? 0), 0);
+}
+
+/** Dauer als HH:MM (Stunden auch über 24 möglich). */
+export function formatDuration(minutes) {
+  const h = String(Math.floor(minutes / 60)).padStart(2, '0');
+  const m = String(minutes % 60).padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+export function formatLine(flight) {
+  const min = flightMinutes(flight);
+  return [flight.start, flight.tg.join(', '), flight.landing, min === null ? '' : formatDuration(min)].join(SEPARATOR);
+}
+
+/** Inhalt der Textdatei: Kopfzeile, eine Zeile pro Flug, Gesamtzeit in der Luft. */
 export function toText(events) {
-  return [HEADER, ...buildFlights(events).map(formatLine)].join('\n');
+  const flights = buildFlights(events);
+  return [
+    HEADER,
+    ...flights.map(formatLine),
+    '',
+    `${TOTAL_LABEL}: ${formatDuration(totalMinutes(flights))}`,
+  ].join('\n');
 }

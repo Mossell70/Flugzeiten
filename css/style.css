@@ -15,6 +15,8 @@
   --radius: 14px;
   --mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
   --text: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --backdrop: url('../img/airport-night.svg');
+  --glass: color-mix(in srgb, var(--panel) 82%, transparent);
   color-scheme: dark;
 }
 
@@ -32,6 +34,7 @@
     --end: #C93A31;
     --on-color: #FFFFFF;
     --focus: #2370C2;
+    --backdrop: url('../img/airport-day.svg');
     color-scheme: light;
   }
 }
@@ -45,6 +48,13 @@ body {
   color: var(--ink);
   font: 400 1rem/1.45 var(--text);
   -webkit-tap-highlight-color: transparent;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--backdrop) center bottom / cover no-repeat, var(--bg);
 }
 [hidden] { display: none !important; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
@@ -60,10 +70,17 @@ p { margin: 0; }
   gap: 1rem;
 }
 
+/* Glasflächen über dem Flugplatz-Bild */
+.clock, .pad, .ended, .log, .status {
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  backdrop-filter: blur(10px) saturate(1.2);
+}
+
 /* ---------- Kopf ---------- */
 .top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
-h1 { font-size: 1.125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+h1 { font-size: 1.125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); text-shadow: 0 1px 6px var(--bg); }
 .status {
+  background: var(--glass);
   font: 600 0.8125rem/1 var(--text);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -83,16 +100,23 @@ h1 { font-size: 1.125rem; font-weight: 700; letter-spacing: 0.08em; text-transfo
 
 /* ---------- Uhr ---------- */
 .clock {
-  background: var(--panel);
+  background: var(--glass);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 0.75rem 1rem;
-  display: flex; align-items: baseline; justify-content: center;
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center;
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
 }
 .clock-time { font-size: clamp(3.25rem, 17vw, 5rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
 .clock-sec { font-size: clamp(1.5rem, 7vw, 2.25rem); color: var(--ink-soft); }
+.airtime {
+  flex-basis: 100%; text-align: center; margin-top: 0.4rem;
+  font: 600 0.8125rem/1.2 var(--text); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft);
+}
+.airtime strong {
+  font: 600 1.5rem/1 var(--mono); letter-spacing: 0; color: var(--start); margin-left: 0.35rem; vertical-align: -0.1em;
+}
 .clock-zone {
   margin-left: 0.75rem; font: 700 0.875rem/1 var(--text); letter-spacing: 0.12em;
   color: var(--on-color); background: var(--ink-soft); padding: 0.3rem 0.45rem; border-radius: 4px;
@@ -106,7 +130,7 @@ h1 { font-size: 1.125rem; font-weight: 700; letter-spacing: 0.08em; text-transfo
   --c: var(--ink-soft);
   appearance: none;
   border: 2px solid var(--c);
-  background: var(--panel);
+  background: var(--glass);
   color: var(--ink);
   border-radius: var(--radius);
   min-height: 9rem;
@@ -138,14 +162,14 @@ h1 { font-size: 1.125rem; font-weight: 700; letter-spacing: 0.08em; text-transfo
 /* Die jeweils erwartete Taste hervorheben */
 body[data-phase="ground"] .pad-start,
 body[data-phase="air"] .pad-tg,
-body[data-phase="air"] .pad-landing { background: color-mix(in srgb, var(--c) 16%, var(--panel)); }
+body[data-phase="air"] .pad-landing { background: color-mix(in srgb, var(--c) 18%, var(--glass)); }
 
 .icon { fill: none; stroke: currentColor; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
 .icon-sm { width: 1.1rem; height: 1.1rem; stroke-width: 4; vertical-align: -0.2em; }
 
 /* ---------- Beendet ---------- */
 .ended {
-  background: var(--panel);
+  background: var(--glass);
   border: 2px solid var(--end);
   border-radius: var(--radius);
   padding: 1.1rem;
@@ -177,7 +201,7 @@ body[data-phase="air"] .pad-landing { background: color-mix(in srgb, var(--c) 16
 
 /* ---------- Protokoll ---------- */
 .log {
-  background: var(--panel);
+  background: var(--glass);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 0.9rem 1rem 1rem;
@@ -189,16 +213,23 @@ body[data-phase="air"] .pad-landing { background: color-mix(in srgb, var(--c) 16
   font: 500 0.9375rem/1.2 var(--text); color: var(--ink); cursor: pointer;
 }
 .link:disabled { color: var(--ink-soft); opacity: 0.5; cursor: default; }
-.log-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 1.0625rem; }
+.log-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 1rem; }
 .log-table th {
   font: 600 0.75rem/1 var(--text); text-transform: uppercase; letter-spacing: 0.08em; text-align: left;
   color: var(--ink-soft); padding: 0.4rem 0.4rem 0.5rem; border-bottom: 1px solid var(--line);
 }
-.log-table th:nth-child(1) { color: var(--start); }
-.log-table th:nth-child(2) { color: var(--tg); }
-.log-table th:nth-child(3) { color: var(--landing); }
+.log-table thead th:nth-child(1) { color: var(--start); }
+.log-table thead th:nth-child(2) { color: var(--tg); }
+.log-table thead th:nth-child(3) { color: var(--landing); }
+.log-table td.is-running { color: var(--start); }
+.log-table tfoot th, .log-table tfoot td {
+  border-top: 2px solid var(--line); border-bottom: 0; padding-top: 0.6rem;
+}
+.log-table tfoot th { color: var(--ink-soft); text-align: left; font-size: 0.8125rem; vertical-align: middle; }
+.log-table tfoot td { text-align: right; font-weight: 700; font-size: 1.1875rem; }
 .log-table td { padding: 0.55rem 0.4rem; border-bottom: 1px solid var(--line); vertical-align: top; }
-.log-table td:nth-child(2) { width: 45%; }
+.log-table td:nth-child(2) { width: 34%; }
+.log-table td:nth-child(4), .log-table th:nth-child(4) { text-align: right; }
 .log-table tr:last-child td { border-bottom: 0; }
 .log-table tr.is-open td { background: color-mix(in srgb, var(--start) 10%, transparent); }
 .log-table tr.is-new td { animation: flash 900ms ease-out; }

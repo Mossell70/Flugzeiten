@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 – 2026-10-07
+
+- Neu: Dauer Start bis Landung (HH:MM) pro Flug als eigene Spalte, auch über Mitternacht UTC
+- Neu: „Zeit in der Luft“ als Summe aller Flüge, während des Flugs mit live mitlaufender Flugzeit
+- Textdatei enthält Dauer-Spalte und Summenzeile
+- Neu: Hintergrund mit Flugplatz-Illustration (Tag- und Nachtversion), Flächen leicht durchscheinend
+
 ## 1.1.0 – 2026-10-07
 
 - Beenden erstellt jetzt eine Textdatei (`Flugzeiten.txt`) statt einer E-Mail: Inhalt wird angezeigt, Datei kann geöffnet und gespeichert werden

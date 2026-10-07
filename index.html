@@ -53,6 +53,7 @@
     <section class="clock" aria-label="Aktuelle Uhrzeit in UTC">
       <time id="clock" class="clock-time">--:--</time><span id="clock-sec" class="clock-sec">:--</span>
       <span class="clock-zone">UTC</span>
+      <p id="airtime" class="airtime" hidden>In der Luft <strong id="airtime-value">00:00</strong></p>
     </section>
 
     <section id="recorder" class="recorder" aria-label="Zeiten erfassen">
@@ -100,8 +101,11 @@
         </button>
       </div>
       <table class="log-table">
-        <thead><tr><th scope="col">Start</th><th scope="col">T&amp;G</th><th scope="col">Landung</th></tr></thead>
+        <thead><tr><th scope="col">Start</th><th scope="col">T&amp;G</th><th scope="col">Landung</th><th scope="col">Dauer</th></tr></thead>
         <tbody id="log-body"></tbody>
+        <tfoot id="log-foot" hidden>
+          <tr><th scope="row" colspan="3">Zeit in der Luft</th><td id="log-total">00:00</td></tr>
+        </tfoot>
       </table>
       <p id="log-empty" class="empty">Noch keine Zeiten erfasst.</p>
     </section>

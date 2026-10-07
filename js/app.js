@@ -1,5 +1,8 @@
 // Verbindung von Oberfläche und Logik.
-import { utcTime, buildFlights, isAirborne, toText } from './log.js';
+import {
+  utcTime, buildFlights, isAirborne, toText,
+  minutesBetween, flightMinutes, totalMinutes, formatDuration,
+} from './log.js';
 import { loadState, saveState } from './storage.js';
 import { FILE_NAME, TAP_GUARD_MS } from './config.js';
 
@@ -16,6 +19,10 @@ const els = {
   fileText: $('#file-text'),
   body: $('#log-body'),
   empty: $('#log-empty'),
+  foot: $('#log-foot'),
+  total: $('#log-total'),
+  airtime: $('#airtime'),
+  airtimeValue: $('#airtime-value'),
   undo: $('[data-action="undo"]'),
   toast: $('#toast'),
 };
@@ -23,6 +30,7 @@ const els = {
 let state = loadState();
 let lastTap = 0;
 let toastTimer = 0;
+let shownMinute = '';
 
 function persist() {
   if (!saveState(state)) showToast('Achtung: Speichern im Browser nicht möglich.');
@@ -102,18 +110,34 @@ function cell(text) {
   return td;
 }
 
+/** Laufende Minuten seit dem Start des offenen Flugs (null ohne Startzeit). */
+function runningMinutes(flight, now = new Date()) {
+  return minutesBetween(flight.start, utcTime(now));
+}
+
 function render(flash = false) {
   const flights = buildFlights(state.events);
   const airborne = isAirborne(state.events);
+  const open = flights[flights.length - 1];
+  const running = airborne && !state.ended ? runningMinutes(open) : null;
 
   els.body.replaceChildren(...flights.map((f, i) => {
+    const isOpen = i === flights.length - 1 && airborne;
+    const min = isOpen ? running : flightMinutes(f);
     const tr = document.createElement('tr');
-    tr.append(cell(f.start), cell(f.tg.join(', ')), cell(f.landing));
-    if (i === flights.length - 1 && airborne) tr.classList.add('is-open');
+    const dur = cell(min === null ? '' : formatDuration(min));
+    if (isOpen && min !== null) dur.classList.add('is-running');
+    tr.append(cell(f.start), cell(f.tg.join(', ')), cell(f.landing), dur);
+    if (isOpen) tr.classList.add('is-open');
     if (flash && i === flights.length - 1) tr.classList.add('is-new');
     return tr;
   }));
   els.empty.hidden = flights.length > 0;
+  els.foot.hidden = flights.length === 0;
+  els.total.textContent = formatDuration(totalMinutes(flights) + (running ?? 0));
+  els.airtime.hidden = running === null;
+  if (running !== null) els.airtimeValue.textContent = formatDuration(running);
+  shownMinute = utcTime();
 
   els.recorder.hidden = state.ended;
   els.ended.hidden = !state.ended;
@@ -123,7 +147,6 @@ function render(flash = false) {
   }
   els.undo.disabled = state.ended || state.events.length === 0;
 
-  const open = flights[flights.length - 1];
   if (state.ended) {
     els.status.dataset.state = 'ended';
     els.status.textContent = 'Beendet';
@@ -148,6 +171,8 @@ function tick() {
   const now = new Date();
   els.clock.textContent = utcTime(now);
   els.clockSec.textContent = `:${String(now.getUTCSeconds()).padStart(2, '0')}`;
+  // Laufende Flugzeit und Summe jede Minute aktualisieren
+  if (utcTime(now) !== shownMinute && isAirborne(state.events) && !state.ended) render();
   setTimeout(tick, 1000 - (Date.now() % 1000) + 5);
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "flugzeiten",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "UTC-Zeiten für Start, Touch-and-Go und Landung erfassen und als Textdatei speichern",
   "private": true,
   "type": "module",

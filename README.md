@@ -10,21 +10,26 @@ Web-App zum Erfassen von **Start-, Touch-and-Go- und Landezeiten in UTC** per Kn
 |---|---|
 | **Start** | schreibt die aktuelle UTC-Zeit als Startzeit und beginnt eine neue Zeile |
 | **T&G** | schreibt die aktuelle UTC-Zeit in das T&G-Feld der aktuellen Zeile (mehrere T&G werden mit Komma angehängt) |
-| **Landung** | schreibt die aktuelle UTC-Zeit als Landezeit und schließt die Zeile ab |
+| **Landung** | schreibt die aktuelle UTC-Zeit als Landezeit, berechnet die Dauer und schließt die Zeile ab |
 | **Beenden** | erstellt die Textdatei `Flugzeiten.txt` und zeigt ihren Inhalt an – mit **Datei öffnen** (neuer Tab) und **Datei speichern** (Download) |
 
-Zeiten werden im Format `HH:MM` (UTC) geschrieben, **ohne Datum**. Jeder Flug ist eine Zeile:
+Zeiten werden im Format `HH:MM` (UTC) geschrieben, **ohne Datum**. Jeder Flug ist eine Zeile, am Ende steht die Gesamtzeit in der Luft:
 
 ```
-Start - T&G - Landung (UTC)
-09:12 - 09:20, 09:27 - 09:35
-10:00 -  - 10:39
+Start - T&G - Landung - Dauer (UTC)
+09:12 - 09:20, 09:27 - 09:35 - 00:23
+10:00 -  - 10:39 - 00:39
+
+Zeit in der Luft: 01:02
 ```
+
+**Dauer** = Start bis Landung (`HH:MM`), auch über Mitternacht UTC. **Zeit in der Luft** = Summe aller Dauern; Flüge ohne Start- oder Landezeit zählen nicht mit.
 
 Wird kein T&G erfasst, bleibt das Feld leer. Fehlt eine Landung (z. B. vergessen) und wird erneut **Start** gedrückt, bleibt das Landefeld der vorigen Zeile leer; **T&G** oder **Landung** ohne vorherigen Start ergeben eine Zeile mit leerem Startfeld.
 
 Weitere Hilfen:
 
+- **Laufende Flugzeit** – während des Flugs zeigt die App unter der Uhr „In der Luft“ seit dem Start; Tabelle und Summe zählen live mit
 - **Letzten Eintrag rückgängig** – entfernt die zuletzt erfasste Zeit (z. B. nach einem Fehltipp)
 - **Doppeltipp-Schutz** – ein zweiter Tipp innerhalb von 2 Sekunden wird ignoriert
 - Nach **Beenden** außerdem: „Weiter aufzeichnen“ oder „Neue Aufzeichnung“ (löscht die Zeiten nach Rückfrage). Die Zeiten bleiben im Browser erhalten, bis du „Neue Aufzeichnung“ wählst.
@@ -49,7 +54,8 @@ Seite im Browser öffnen und „Zum Home-Bildschirm“ (iPhone: Teilen-Menü in 
 ```
 index.html             Oberfläche und Symbole
 css/style.css          Gestaltung (hell/dunkel nach Systemeinstellung)
-js/log.js              Zeiten in Flüge/Zeilen übersetzen (reine Logik)
+img/                   Hintergrund-Illustration Flugplatz (Tag/Nacht)
+js/log.js              Zeiten in Flüge/Zeilen übersetzen, Dauern berechnen (reine Logik)
 js/storage.js          Speichern und Laden der Aufzeichnung
 js/config.js           Dateiname, Doppeltipp-Schutz
 js/app.js              Verbindung von Oberfläche und Logik

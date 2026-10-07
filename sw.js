@@ -1,6 +1,6 @@
 // Service Worker: hält die App offline verfügbar (z. B. am Flugplatz ohne Netz).
 // Bei Änderungen an den Dateien VERSION erhöhen.
-const VERSION = 'flugzeiten-v1.1.0';
+const VERSION = 'flugzeiten-v1.2.0';
 const FILES = [
   './',
   './index.html',
@@ -10,6 +10,8 @@ const FILES = [
   './js/storage.js',
   './js/config.js',
   './manifest.webmanifest',
+  './img/airport-day.svg',
+  './img/airport-night.svg',
   './icons/icon.svg',
   './icons/icon-180.png',
   './icons/icon-192.png',
